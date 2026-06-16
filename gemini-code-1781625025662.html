@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cairo Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            transition: direction 0.3s ease;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        /* Панель переключения языков */
+        .lang-switcher {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        body[dir="rtl"] .lang-switcher {
+            justify-content: flex-start;
+        }
+        .lang-btn {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .lang-btn.active {
+            background: #1a2a3a;
+            color: white;
+            border-color: #1a2a3a;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a2a3a;
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #111;
+            margin: 10px 0;
+        }
+        .subtext {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .calc-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            text-align: inherit;
+        }
+        .calc-results {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.1rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Переключатель языков -->
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ar')">AR</button>
+    </div>
+
+    <h1 id="main-title">Каир: Время, Погода и Валюта</h1>
+    
+    <div class="grid">
+        <!-- Время -->
+        <div class="card">
+            <h2 id="title-time">Время в Каире</h2>
+            <div class="value" id="clock">--:--:--</div>
+            <div class="subtext" id="sub-time">Часовой пояс GMT+3</div>
+        </div>
+
+        <!-- Погода -->
+        <div class="card">
+            <h2 id="title-weather">Погода в Каире</h2>
+            <div class="value">34°C</div>
+            <div class="subtext" id="sub-weather">Влажность: 51% | Ясно</div>
+        </div>
+
+        <!-- Курсы валют -->
+        <div class="card">
+            <h2 id="title-currency">Курс Доллара (USD)</h2>
+            <div style="margin-bottom: 5px;"><strong id="val-egp">50.12 EGP</strong> <span id="lbl-egp">(Ег. фунт)</span></div>
+            <div><strong id="val-rub">72.50 RUB</strong> <span id="lbl-rub">(Рубль)</span></div>
+            <div class="subtext" style="margin-top: 5px;" id="sub-currency">Данные на июнь 2026</div>
+        </div>
+    </div>
+
+    <!-- Конвертер -->
+    <div class="calc-box">
+        <h2 style="margin-top:0; color:#666; font-size:1.1rem;" id="title-calc">Калькулятор USD</h2>
+        <label for="usd-input" id="lbl-calc-input">Введите сумму в USD:</label>
+        <input type="number" id="usd-input" value="1" min="0">
+        <div class="calc-results">
+            <div><span id="res-egp-lbl">В фунтах:</span> <span id="res-egp" style="font-weight:bold; color:#2e7d32;">50.12</span> EGP</div>
+            <div><span id="res-rub-lbl">В рублях:</span> <span id="res-rub" style="font-weight:bold; color:#c62828;">72.50</span> RUB</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // База переводов
+    const translations = {
+        ru: {
+            dir: "ltr",
+            title: "Каир: Время, Погода и Валюта",
+            time: "Время в Каире",
+            subTime: "Часовой пояс GMT+3",
+            weather: "Погода в Каире",
+            subWeather: "Влажность: 51% | Ясно",
+            currency: "Курс Доллара (USD)",
+            egp: "(Ег. фунт)",
+            rub: "(Рубль)",
+            subCurrency: "Данные на июнь 2026",
+            calcTitle: "Калькулятор USD",
+            calcInput: "Введите сумму в USD:",
+            resEgp: "В фунтах:",
+            resRub: "В рублях:"
+        },
+        en: {
+            dir: "ltr",
+            title: "Cairo: Time, Weather & Currency",
+            time: "Cairo Time",
+            subTime: "Timezone GMT+3",
+            weather: "Cairo Weather",
+            subWeather: "Humidity: 51% | Clear",
+            currency: "USD Exchange Rate",
+            egp: "(Egp. Pound)",
+            rub: "(Ruble)",
+            subCurrency: "Data as of June 2026",
+            calcTitle: "USD Calculator",
+            calcInput: "Enter amount in USD:",
+            resEgp: "In Pounds:",
+            resRub: "In Rubles:"
+        },
+        ar: {
+            dir: "rtl",
+            title: "القاهرة: الوقت والطقس والعملة",
+            time: "الوقت في القاهرة",
+            subTime: "المنطقة الزمنية GMT+3",
+            weather: "الطقس في القاهرة",
+            subWeather: "الرطوبة: 51% | صافي",
+            currency: "سعر صرف الدولار (USD)",
+            egp: "(جنيه مصري)",
+            rub: "(روبل روسي)",
+            subCurrency: "البيانات تحديث يونيو 2026",
+            calcTitle: "حاسبة الدولار",
+            calcInput: "أدخل المبلغ بالدولار:",
+            resEgp: "بالجنية:",
+            resRub: "بالروبل:"
+        }
+    };
+
+    let currentLang = 'ru';
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+        
+        // Меняем направление текста страницы (RTL/LTR)
+        document.body.setAttribute('dir', t.dir);
+        document.documentElement.setAttribute('lang', lang);
+
+        // Обновляем тексты
+        document.getElementById('main-title').textContent = t.title;
+        document.getElementById('title-time').textContent = t.time;
+        document.getElementById('sub-time').textContent = t.subTime;
+        document.getElementById('title-weather').textContent = t.weather;
+        document.getElementById('sub-weather').textContent = t.subWeather;
+        document.getElementById('title-currency').textContent = t.currency;
+        document.getElementById('lbl-egp').textContent = t.egp;
+        document.getElementById('lbl-rub').textContent = t.rub;
+        document.getElementById('sub-currency').textContent = t.subCurrency;
+        document.getElementById('title-calc').textContent = t.calcTitle;
+        document.getElementById('lbl-calc-input').textContent = t.calcInput;
+        document.getElementById('res-egp-lbl').textContent = t.resEgp;
+        document.getElementById('res-rub-lbl').textContent = t.resRub;
+
+        // Обновляем активную кнопку
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    // Живые часы для Каира
+    function updateClock() {
+        const now = new Date();
+        const cairoTime = new Date(now.toLocaleString("en-US", {timeZone: "Africa/Cairo"}));
+        
+        const hours = String(cairoTime.getHours()).padStart(2, '0');
+        const minutes = String(cairoTime.getMinutes()).padStart(2, '0');
+        const seconds = String(cairoTime.getSeconds()).padStart(2, '0');
+        
+        document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Логика конвертера валют
+    const rateEGP = 50.12;
+    const rateRUB = 72.50;
+    const input = document.getElementById('usd-input');
+    const resEGP = document.getElementById('res-egp');
+    const resRUB = document.getElementById('res-rub');
+
+    input.addEventListener('input', () => {
+        const val = parseFloat(input.value) || 0;
+        resEGP.textContent = (val * rateEGP).toFixed(2);
+        resRUB.textContent = (val * rateRUB).toFixed(2);
+    });
+</script>
+
+</body>
+</html>
